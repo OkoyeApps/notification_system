@@ -1,0 +1,34 @@
+{
+  "name": "notifcation_service",
+  "version": "1.0.0",
+  "description": "Notification service",
+  "main": "server.js",
+  "scripts": {
+    "test": "Set DEBUG=* && nodemon ./bin/www",
+    "start": "nodemon ./bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OkoyeApps/notification_service.git"
+  },
+  "keywords": [
+    "Notification"
+  ],
+  "author": "okoyeemma442@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OkoyeApps/notification_service.git/issues"
+  },
+  "homepage": "https://github.com/OkoyeApps/notification_service.git#readme",
+  "dependencies": {
+    "@hapi/joi": "*",
+    "compression": "*",
+    "cors": "*",
+    "dotenv": "*",
+    "express": "*",
+    "mongoose": "*",
+    "morgan": "*",
+    "nodemon": "*"
+  },
+  "devDependencies": {}
+}
