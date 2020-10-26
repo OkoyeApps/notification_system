@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+    <link href="/style.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="mario-chat">
+        <div id="chat-window">
+            <div id="output">
+            </div>
+            <div id="feedback"></div>
+        </div>
+        <input id="handle" type="text" placeholder=" public Id" />
+        <input id="message" type="text" placeholder="Message" />
+        <input id="to" type="text" placeholder=" Id" />
+        <input id="usertype" type="text" placeholder="user type" />
+
+        <button id="send" type="button">Send</button>
+        <button id="onl" type="button">Online</button>
+
+    </div>
+    <script src="/notification.js"></script>
+    <script>
+        (function () {
+            var socket1 = io.connect("http://localhost:8080")
+            
+            var socket2 = io.connect("http://localhost:8080/notification")
+        })
+    </script>
+</body>
+
+</html>

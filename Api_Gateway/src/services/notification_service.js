@@ -1,8 +1,23 @@
+const { json } = require('express');
 const Notification_Model = require('../models/notification_model');
 
 class Notification {
-    constructor(notificationClass) {
-        this._notification = notificationClass;
+    constructor(redisclient) {
+        this._publisher = redisclient.duplicate();
+        this.subsciber= redisclient.duplicate();
+
+        this.subsciber.subscribe("add_notification");
+        this.subsciber.on("message", (channel, message) => {
+            switch (channel) {
+                case "add_notification":
+                    let jsonData = JSON.parse(message);
+                    this.saveNotification(jsonData.user_id, jsonData.message);
+                    break;
+            
+                default:
+                    break;
+            }
+        });
     }
 
     saveNotification(user_id, message) {
@@ -13,6 +28,7 @@ class Notification {
             };
             return Notification_Model.create(newNotification).then(result => {
                 //Publish a message for notification service here
+                this._publisher.publish("notification_added", JSON.stringify(result.toObject()));
                 return { success: true, data: result.toObject(), status: 201 };
             }).catch(error => {
                 //log error here later
@@ -89,4 +105,4 @@ class Notification {
     }
 }
 
-module.exports = new Notification(new Notification_Model());
+module.exports = Notification;

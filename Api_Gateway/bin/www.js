@@ -4,19 +4,31 @@
  * Module dependencies.
  */
 
-var app = require('../server');
+var initilizer = require('../server');
 var path = require('path');
 var fs = require('fs');
 var http = require('http');
-var https  = require('https')
+var https = require('https');
+const redis = require('redis');
 var dbConfiguration = require('./config/db');
+const keys = require('../keys');
+
+const socket_connection = require('socket.io');
+const socketServices = require('../src/services/socket_services');
+
 var port = normalizePort(process.env.PORT || '8080');
 var serverType = process.env.servertype;
-app.set('port', port);
 var server = {};
 
 
+//redis configuration
+const redisClient = redis.createClient({
+    host: keys.redisHost,
+    port: keys.redisPort,
+    retry_strategy: () => 1000
+});
 
+const app = initilizer(redisClient);
 /**
  * Create Unified server based on the server type environment
  * choose between http and https server.
@@ -26,11 +38,12 @@ if (serverType === 'https') {
     let certOptions = {
         key: fs.readFileSync(path.resolve('bin/certs/server.key')),
         cert: fs.readFileSync(path.resolve('bin/certs/server.crt'))
-    }
-    server = https.createServer(certOptions, app)
-}else{
+    };
+    server = https.createServer(certOptions, app);
+} else {
     server = http.createServer(app);
 }
+
 
 
 /**
@@ -39,6 +52,8 @@ if (serverType === 'https') {
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+app.set('port', port);
 
 
 /**
@@ -103,4 +118,9 @@ function onListening() {
     var bind = typeof addr === 'string' ?
         'pipe ' + addr :
         'port ' + addr.port;
+    console.table(addr);
+    let socketInstance = socket_connection(server);
+    socketServices(socketInstance, redisClient);
+    app.set("socket_connection", socketInstance);
+    socketInstance.on('connect', () => console.log("root socket connected"));
 }

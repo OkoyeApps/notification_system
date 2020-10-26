@@ -13,5 +13,6 @@ sub.on('message', (channel, message) => {
     console.log(channel, message)
 })
 
-sub.subscribe('add_notification');
+
+sub.subscribe('notification_added');
 console.log("notification server live");
