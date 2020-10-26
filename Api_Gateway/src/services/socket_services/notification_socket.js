@@ -1,5 +1,3 @@
-const { json } = require("express");
-
 //store online people
 const online_members = [];
 
@@ -22,25 +20,43 @@ const NotificationSocket = (io, redisClient) => {
             console.log("socket online");
             online_members_objects[data.user_id] = socket.id;
             saveNewuserDetailsTo(redisClient);
+            // socket.to(socket.id).emit("new_notification", notifications)
         });
 
         socket.on("notify", (data) => {
             saveNewNotification(redisClient);
-            socket.broadcast("")
-            // for (let index = 0; index < 5; index++) {
-            //     publisher.publish('add_notification', JSON.stringify({ user_id: 5, message: "data from redis" + index }));
-            // }
+            publisher.publish("add_notification", JSON.stringify(data));
         });
+        subscriber.subscribe("notification_added");
+        subscriber.on('message', subscriptionHandler(redisClient, socket));
     });
+
 };
 
+const subscriptionHandler = (redisclient, socket) => (channel, message) => {
+    console.log("subscription recieved", channel, message);
+    switch (channel) {
+        case "notification_added":
+            saveNewNotification(redisclient);
+            emitNewNotification(message, socket);
+
+        default:
+            break;
+    }
+};
+
+
+const emitNewNotification = (data, socket) => {
+    console.log("saved not calling");
+    notifications.push(data);
+    socket.broadcast.emit("new_notification", data);
+};
 /**
  * @description initializes every online memeber in redis store
  * @param {objec} redisclient 
  */
 const initOnlineMembers = function (redisclient) {
     redisclient.get('members', (err, members) => {
-        console.log("members", members)
         if (members) {
             online_members_objects = JSON.parse(members);
         }
@@ -50,11 +66,10 @@ const initOnlineMembers = function (redisclient) {
 
 /**
  * @description initializes every online memeber in redis store
- * @param {objec} redisclient 
+ * @param {object} redisclient 
  */
 const initNotificationMessages = function (redisclient) {
     redisclient.get('notifications', (err, savedNotification) => {
-         console.log("notification", notifications)
         if (savedNotification) {
             notifications = JSON.parse(savedNotification);
         }
@@ -62,11 +77,10 @@ const initNotificationMessages = function (redisclient) {
 };
 
 const saveNewuserDetailsTo = (redisClient) => {
-
     redisClient.set('members', JSON.stringify(online_members_objects));
 };
 
 const saveNewNotification = (redisClient) => {
-    redisClient.set('notifications', JSON.stringify(online_members_objects));
+    redisClient.set('notifications', JSON.stringify(notifications));
 };
 module.exports = NotificationSocket;

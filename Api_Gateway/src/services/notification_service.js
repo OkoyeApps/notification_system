@@ -21,6 +21,7 @@ class Notification {
     }
 
     saveNotification(user_id, message) {
+        console.log("called check")
         if (user_id && message) {
             const newNotification = {
                 message: message,

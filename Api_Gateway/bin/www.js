@@ -15,6 +15,7 @@ const keys = require('../keys');
 
 const socket_connection = require('socket.io');
 const socketServices = require('../src/services/socket_services');
+const redisAdapter = require('socket.io-redis');
 
 var port = normalizePort(process.env.PORT || '8080');
 var serverType = process.env.servertype;
@@ -27,6 +28,9 @@ const redisClient = redis.createClient({
     port: keys.redisPort,
     retry_strategy: () => 1000
 });
+
+// redisClient.flushall();
+// redisClient.flushdb();
 
 const app = initilizer(redisClient);
 /**
@@ -120,6 +124,7 @@ function onListening() {
         'port ' + addr.port;
     console.table(addr);
     let socketInstance = socket_connection(server);
+    socketInstance.adapter(redisAdapter());
     socketServices(socketInstance, redisClient);
     app.set("socket_connection", socketInstance);
     socketInstance.on('connect', () => console.log("root socket connected"));
