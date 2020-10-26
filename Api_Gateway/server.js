@@ -4,10 +4,22 @@ var morgan = require('morgan');
 require('dotenv').config();
 var compression = require('compression');
 var router = express.Router();
-var rootRouter  = require('./src/routes/index.js')(router);
 var cors = require('cors');
+const redis = require('redis');
+const keys = require('./keys');
 
 
+//redis configuration
+const redisClient = redis.createClient({
+    host: keys.redisHost,
+    port: keys.redisPort,
+    retry_strategy: () => 1000
+});
+var rootRouter  = require('./src/routes/index.js')(router, redisClient);
+
+const publisher = redisClient.duplicate();
+
+app.set('redis_client', redisClient)
 
 app.use(compression());
 app.use(morgan('dev'));

@@ -10,8 +10,8 @@ const redisCLient = redis.createClient({
 const sub = redisCLient.duplicate();
 
 sub.on('message', (channel, message) => {
-    console.log("in the worker service trying to run")
+    console.log(channel, message)
 })
 
-sub.subscribe('insert');
+sub.subscribe('add_notification');
 console.log("notification server live");

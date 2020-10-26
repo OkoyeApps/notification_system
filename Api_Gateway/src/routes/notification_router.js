@@ -1,10 +1,12 @@
 const { Router } = require('express');
 const _router = Router({ strict: true });
-const noticationCtrl = require('../controllers/notification_controller');
+const noticationController = require('../controllers/notification_controller');
 
 
-const Notification_Router = () => {
-    _router.post("/", noticationCtrl.addNotification);
+const Notification_Router = (redisclient) => {
+    let noticationCtrl = new noticationController(redisclient);
+    _router.post("/", (...args) => noticationCtrl.addNotification(...args));
+    _router.get("/", (...args) => noticationCtrl.getNotications(...args));
     return _router;
 };
 
