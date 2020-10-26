@@ -4,42 +4,48 @@ const online_members = [];
 //store online notifications
 let notifications = [];
 let online_members_objects = {};
-
-
+let redis_client = undefined;
+let subForMessage = false;
+let personalSocket = undefined;
 
 const NotificationSocket = (io, redisClient) => {
     const subscriber = redisClient.duplicate();
     const publisher = redisClient.duplicate();
+    redis_client = redisClient;
     io.of("/notification").on("connect", (socket) => {
-        console.log("connected socket in notification");
-
         initOnlineMembers(redisClient);
         initNotificationMessages(redisClient);
 
         socket.on('online', (data) => {
-            console.log("socket online");
             online_members_objects[data.user_id] = socket.id;
             saveNewuserDetailsTo(redisClient);
-            // socket.to(socket.id).emit("new_notification", notifications)
+            console.log("online details", socket.id);
+            socket.emit("all_notification", notifications);
         });
 
         socket.on("notify", (data) => {
-            saveNewNotification(redisClient);
+            personalSocket = socket;
+            saveNewNotification(redisClient, io);
             publisher.publish("add_notification", JSON.stringify(data));
         });
-        subscriber.subscribe("notification_added");
-        subscriber.on('message', subscriptionHandler(redisClient, socket));
+        initMessageSubscriber(socket)(redis_client, subscriber);
     });
 
+    subscriber.subscribe("notification_added");
+};
+
+const initMessageSubscriber = (socket) => (redis_client, subscriber) => {
+    if (!subForMessage) {
+        subscriber.on('message', subscriptionHandler(redis_client, socket));
+        subForMessage = true;
+    }
 };
 
 const subscriptionHandler = (redisclient, socket) => (channel, message) => {
-    console.log("subscription recieved", channel, message);
     switch (channel) {
         case "notification_added":
-            saveNewNotification(redisclient);
             emitNewNotification(message, socket);
-
+            saveNewNotification(redisclient);
         default:
             break;
     }
@@ -47,9 +53,8 @@ const subscriptionHandler = (redisclient, socket) => (channel, message) => {
 
 
 const emitNewNotification = (data, socket) => {
-    console.log("saved not calling");
-    notifications.push(data);
-    socket.broadcast.emit("new_notification", data);
+    notifications.push(JSON.parse(data));
+    socket.broadcast.emit('new_notification', data);
 };
 /**
  * @description initializes every online memeber in redis store

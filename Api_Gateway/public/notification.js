@@ -5,7 +5,6 @@
         // socket2.emit("notify", { user_id: 1, message: "testing from client" });
         socket2.emit("online", { user_id: 1 });
         socket2.on("new_notification", (data) => {
-            console.log("new emitted data", data);
         });
     });
 

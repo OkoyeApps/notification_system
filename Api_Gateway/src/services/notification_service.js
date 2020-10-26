@@ -20,12 +20,12 @@ class Notification {
         });
     }
 
-    saveNotification(user_id, message) {
-        console.log("called check")
-        if (user_id && message) {
+    saveNotification(user_id, message, title) {
+        if (user_id && message && title) {
             const newNotification = {
                 message: message,
-                user_id: user_id
+                user_id: user_id,
+                title : title
             };
             return Notification_Model.create(newNotification).then(result => {
                 //Publish a message for notification service here
@@ -36,7 +36,7 @@ class Notification {
                 return { success: false, error: error, status: 500 };
             });
         } else {
-            return Promise.reject({ success: false, error: new Error("incomplete message"), status: 500 });
+            return Promise.reject({ success: false, error: new Error("incomplete message"), status: 400 });
         }
     }
     getNotifications(paginationParams, sortParams, filterParams, urlDetail) {
