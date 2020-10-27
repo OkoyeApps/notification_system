@@ -7,13 +7,13 @@ services:
     nginx:
       restart: always
       build:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
         context: ./nginx
       ports:
         - '3001:80'
     api:
       build:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
         context: ./Api_Gateway
       volumes:
         - /app/node_modules
@@ -25,7 +25,7 @@ services:
         - DB_URI=mongodb://mongo_db:27017/notification
     client:
        build:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
         context: ./notification_client
        volumes:
         - /app/node_modules
