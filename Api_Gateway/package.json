@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "debug": "Set DEBUG=* && nodemon ./bin/www",
-    "start": "nodemon ./bin/www"
+    "dev": "nodemon ./bin/www",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",

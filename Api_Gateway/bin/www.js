@@ -12,7 +12,6 @@ var https = require('https');
 const redis = require('redis');
 var dbConfiguration = require('./config/db');
 const keys = require('../keys');
-
 const socket_connection = require('socket.io');
 const socketServices = require('../src/services/socket_services');
 const redisAdapter = require('socket.io-redis');
@@ -124,8 +123,8 @@ function onListening() {
         'port ' + addr.port;
     console.table(addr);
     let socketInstance = socket_connection(server);
-    socketInstance.adapter(redisAdapter());
+    socketInstance.adapter(redisAdapter(keys.redisUrl));
     socketServices(socketInstance, redisClient);
     app.set("socket_connection", socketInstance);
-    socketInstance.on('connect', () => {});
+    socketInstance.on('connect', () => { });
 }

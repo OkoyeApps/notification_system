@@ -5,8 +5,6 @@ require('dotenv').config();
 var compression = require('compression');
 var router = express.Router();
 var cors = require('cors');
-const redis = require('redis');
-const keys = require('./keys');
 const appRouter = require('./src/routes/index.js');
 
 const initializer = (redisClient) => {
@@ -29,6 +27,9 @@ const initializer = (redisClient) => {
 };
 
 
-// app.all('*', (req, res) => res.status(200).send({ message: 'server is live' }));
+// app.all('*', (req, res) =>{
+//     console.log("path gotteen", req.url)
+//     console.log("original url", req.originalUrl)
+//     res.status(200).send({ message: 'server is live' })});
 
 module.exports = initializer;

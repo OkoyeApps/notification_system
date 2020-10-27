@@ -1,0 +1,37 @@
+version: '3'
+services:
+    redis_db:
+      image: redis
+    mongo_db:
+      image: mongo
+    nginx:
+      restart: always
+      build:
+        dockerfile: Dockerfile.dev
+        context: ./nginx
+      ports:
+        - '3001:80'
+    api:
+      build:
+        dockerfile: Dockerfile.dev
+        context: ./Api_Gateway
+      volumes:
+        - /app/node_modules
+        - ./Api_Gateway:/app
+      environment:
+        - REDIS_HOST=redis_db
+        - REDIS_PORT=6379
+        - REDIS_URL=redis://redis_db:6379
+        - DB_URI=mongodb://mongo_db:27017/notification
+    client:
+       build:
+        dockerfile: Dockerfile.dev
+        context: ./notification_client
+       volumes:
+        - /app/node_modules
+        - ./notification_client:/app
+       environment: 
+        - DOMAIN=http://localhost:3001
+        - REACT_APP_BASE_URL=${DOMAIN}/api
+        - REACT_APP_SOCKET_URL=${DOMAIN}
+      

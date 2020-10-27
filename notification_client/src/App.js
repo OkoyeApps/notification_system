@@ -7,6 +7,7 @@ const App = () => {
   let hash = window.location.hash;
   hash = hash ? hash.replace("#", '') : null;
   const [userId, setUserId] = useState(hash);
+  console.log(process.env)
   return (
     userId ? <Notification userId={userId}/> : <Setup setUserId={setUserId}/>
   )

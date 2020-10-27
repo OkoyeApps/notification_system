@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import "./index.css";
 import socket from 'socket.io-client';
-const io = socket.connect("http://localhost:8080/notification");
+const { REACT_APP_BASE_URL, REACT_APP_SOCKET_URL } = process.env;
+const io = socket.connect(`${REACT_APP_SOCKET_URL}/notification`);
 
 const Notification = ({ userId }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -72,7 +73,7 @@ const Notification = ({ userId }) => {
     // and had to submit in a short time. i had to just add this here
     const submit = () => {
         let dataToPost = { ...values, user_id: userId };
-        fetch("http://localhost:8080/api/notification",
+        fetch(`${REACT_APP_BASE_URL}/notification`,
             {
                 body: JSON.stringify(dataToPost),
                 headers: {
@@ -92,7 +93,7 @@ const Notification = ({ userId }) => {
     };
 
     const getOldNotification = () => {
-        fetch("http://localhost:8080/api/notification?pagenumber=1&pagesize=200",
+        fetch(`${REACT_APP_BASE_URL}/notification?pagenumber=1&pagesize=200`,
             {
                 headers: {
                     accept: "application/json",
@@ -110,13 +111,13 @@ const Notification = ({ userId }) => {
             <div id="title">
                 <div>
                     <h2>Notifications</h2>
-                    <p>Manage all notifications.</p>
+                    <p>Notifications on available food menu</p>
                 </div>
 
                 <p onClick={toggleAddModal}>Add new</p>
             </div>
 
-           
+
             <section id="notificationList">
                 {
                     oldNotification && oldNotification.reverse().map((x, index) => (
@@ -141,7 +142,7 @@ const Notification = ({ userId }) => {
                         <span onClick={toggleAddModal}>&times;</span>
                         </h3>
                         <form onSubmit={addNotif}>
-                            <div class="form-group">
+                            <div className="form-group">
                                 <input required onChange={(e) => handleInputChange("title", e.target.value)} defaultValue={values.title} placeholder="Enter notification header" />
                             </div>
 
@@ -149,14 +150,6 @@ const Notification = ({ userId }) => {
                                 <textarea rows={4} className="form-control" required onChange={(e) => handleInputChange("message", e.target.value)} defaultValue={values.description} placeholder="Enter notification body" />
                                 <div>
                                 </div>
-
-                                {/* <div class="form-row">
-                  <div class="col-md-12 mb-3">
-                    <br />
-                    <label for="validationDefault02">Time</label>
-                    <input type="text" class="form-control" onChange={(e) => handleInputChange("time", e.target.value)} defaultValue={values.time} type="time" required />
-                  </div>
-                </div> */}
                             </div>
                             <input type="button" onClick={submit} className="btn btn-primary" value="Send Notification" />
                         </form>

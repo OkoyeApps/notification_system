@@ -60,7 +60,6 @@ function seedDatabase() {
                 res.on('end', () => {
                     try {
                         const parsedData = JSON.parse(rawData);
-                        console.log(parsedData);
                         let formattedData = parsedData.map(data => {
                             return { message: data.description, user_id: data.uid, title: data.dish };
                         });
