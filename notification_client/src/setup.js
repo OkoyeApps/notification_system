@@ -14,11 +14,11 @@ const Setup = ({ setUserId }) => {
 
     return (
         <div id="notifPage">
-            <form class="border-0 justify-content-centre d-flex">
-                <label class="sr-only" htmlFor="inlineFormInputName2">Enter User Id</label>
-                <input onChange={changeValue} type="text" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Enter user id e.g 1" />
+            <form className="border-0 justify-content-centre d-flex">
+                <label className="sr-only" htmlFor="inlineFormInputName2">Enter User Id</label>
+                <input onChange={changeValue} type="text" className="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Enter user id e.g 1" />
 
-                <button type="button" class="btn btn-primary mb-2" onClick={next}>Proceed</button>
+                <button type="button" className="btn btn-primary mb-2" onClick={next}>Proceed</button>
             </form>
         </div>
     );

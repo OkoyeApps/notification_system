@@ -34,6 +34,7 @@ module.exports = function init() {
 function seedDatabase() {
     Model.estimatedDocumentCount((err, count) => {
         if (!err && count === 0) {
+            console.log("seeding database")
             get("https://random-data-api.com/api/food/random_food?size=20", res => {
                 const { statusCode } = res;
                 const contentType = res.headers['content-type'];

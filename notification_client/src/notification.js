@@ -6,15 +6,15 @@ const io = socket.connect(`${REACT_APP_SOCKET_URL}/notification`);
 
 const Notification = ({ userId }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [socktClient, setSocketClient] = useState(io);
     const [oldNotification, setOldNotification] = useState([]);
+    const [isconnected, setConnected] = useState(false);
     const [values, setValues] = useState({
         title: "",
         message: "",
         // time: ""
     });
 
-    let isconnected = false;
+    // let isconnected = false;
     let interval = undefined;
 
     useEffect(() => {
@@ -27,10 +27,10 @@ const Notification = ({ userId }) => {
     }, []);
 
     const monitoSocketConnection = () => {
-        if (socktClient.connected) {
-            socktClient.emit("online", { userid: userId });
+        if (io.connected) {
+            io.emit("online", { userid: userId });
             getNotifications();
-            isconnected = true;
+            setConnected(true);
             clearInterval(interval);
         }
     };
@@ -44,7 +44,9 @@ const Notification = ({ userId }) => {
         //     setOldNotification(data);
         // });
         io.on("new_notification", data => {
-            setOldNotification([JSON.parse(data), ...oldNotification]);
+            setOldNotification(allNotiications => {                
+                return [JSON.parse(data), ...allNotiications]
+            });
         });
     };
 
@@ -106,6 +108,7 @@ const Notification = ({ userId }) => {
             }).catch(error => {
             });
     };
+
     return (
         <div id="notifPage">
             <div id="title">
@@ -120,7 +123,7 @@ const Notification = ({ userId }) => {
 
             <section id="notificationList">
                 {
-                    oldNotification && oldNotification.reverse().map((x, index) => (
+                    oldNotification && oldNotification.map((x, index) => (
                         <div className="notif-item" key={index}>
                             <div>
                                 <h4>{x.title}</h4>

@@ -19,7 +19,6 @@ const NotificationSocket = (io, redisClient) => {
         socket.on('online', (data) => {
             online_members_objects[data.user_id] = socket.id;
             saveNewuserDetailsTo(redisClient);
-            console.log("online details", socket.id);
             socket.emit("all_notification", notifications);
         });
 
