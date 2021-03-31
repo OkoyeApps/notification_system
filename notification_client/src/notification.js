@@ -11,6 +11,7 @@ const Notification = ({ userId }) => {
     const [values, setValues] = useState({
         title: "",
         message: "",
+        to: ""
         // time: ""
     });
 
@@ -28,7 +29,7 @@ const Notification = ({ userId }) => {
 
     const monitoSocketConnection = () => {
         if (io.connected) {
-            io.emit("online", { userid: userId });
+            io.emit("online", { user_id: userId });
             getNotifications();
             setConnected(true);
             clearInterval(interval);
@@ -40,13 +41,12 @@ const Notification = ({ userId }) => {
     //am currently out of time for reason of not been a 100% and must submit
 
     const getNotifications = () => {
-        // socktClient.on("all_notification", data => {
-        //     setOldNotification(data);
-        // });
         io.on("new_notification", data => {
-            setOldNotification(allNotiications => {                
-                return [JSON.parse(data), ...allNotiications]
+            console.log("data in notifiation", data);
+            setOldNotification(allNotiications => {
+                return [JSON.parse(data), ...allNotiications];
             });
+            io.emit("notification_recieved", JSON.parse(data).to);
         });
     };
 
@@ -95,7 +95,7 @@ const Notification = ({ userId }) => {
     };
 
     const getOldNotification = () => {
-        fetch(`${REACT_APP_BASE_URL}/notification?pagenumber=1&pagesize=200`,
+        fetch(`${REACT_APP_BASE_URL}/notification/${userId}?pagenumber=1&pagesize=200`,
             {
                 headers: {
                     accept: "application/json",
@@ -147,6 +147,9 @@ const Notification = ({ userId }) => {
                         <form onSubmit={addNotif}>
                             <div className="form-group">
                                 <input required onChange={(e) => handleInputChange("title", e.target.value)} defaultValue={values.title} placeholder="Enter notification header" />
+                            </div>
+                            <div className="form-group">
+                                <input required onChange={(e) => handleInputChange("to", e.target.value)} defaultValue={values.to} placeholder="Reciepient id" />
                             </div>
 
                             <div className="form-group">
