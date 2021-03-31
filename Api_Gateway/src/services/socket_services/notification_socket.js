@@ -18,8 +18,9 @@ const NotificationSocket = (io, redisClient) => {
 
         socket.on('online', (data) => {
             online_members_objects[data.user_id] = socket.id;
+            console.log("online members", online_members_objects, data);
             saveNewuserDetailsTo(redisClient);
-            socket.emit("all_notification", notifications);
+            socket.emit("all_notification", notifications.filter(x => x.to === data.user_id));
         });
 
         socket.on("notify", (data) => {
@@ -27,6 +28,11 @@ const NotificationSocket = (io, redisClient) => {
             saveNewNotification(redisClient, io);
             publisher.publish("add_notification", JSON.stringify(data));
         });
+
+        socket.on('notification_recieved', data => {
+            deleteUserMessage(data);
+        });
+
         initMessageSubscriber(socket)(redis_client, subscriber);
     });
 
@@ -38,6 +44,15 @@ const initMessageSubscriber = (socket) => (redis_client, subscriber) => {
         subscriber.on('message', subscriptionHandler(redis_client, socket));
         subForMessage = true;
     }
+};
+
+const deleteUserMessage = (user_id) => {
+    console.log("delete socket call", user_id);
+    redis_client.get('notifications', (err, notification) => {
+        let filteredData = JSON.parse(notification).filter(x => x.to !== user_id);
+        console.log("filtered data", filteredData);
+        redis_client.set("notifications", JSON.stringify(filteredData));
+    });
 };
 
 const subscriptionHandler = (redisclient, socket) => (channel, message) => {
@@ -53,7 +68,7 @@ const subscriptionHandler = (redisclient, socket) => (channel, message) => {
 
 const emitNewNotification = (data, socket) => {
     notifications.push(JSON.parse(data));
-    socket.broadcast.emit('new_notification', data);
+    socket.to(online_members_objects[JSON.parse(data).to]).emit('new_notification', data);
 };
 /**
  * @description initializes every online memeber in redis store

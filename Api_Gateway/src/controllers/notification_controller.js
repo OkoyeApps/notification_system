@@ -11,8 +11,9 @@ class Notification_Controller {
     }
 
     addNotification(req, res, next) {
-        const { user_id, message, title } = req.body;
-        this._noticiationService.saveNotification(user_id, message, title)
+        const { user_id, message, title, to } = req.body;
+        console.log(req.body);
+        this._noticiationService.saveNotification(user_id, message, title, to)
             .then(result => res.status(result.status).send(result))
             .catch(error => res.status(error.status).send(error));
     }
@@ -20,7 +21,7 @@ class Notification_Controller {
     getNotications(req, res, next) {
         let parsedUrl = url.parse(req.originalUrl, true);
         let { pagenumber, pagesize } = req.query;
-        this._noticiationService.getNotifications({ pagenumber, pagesize }, null, null, { baseUrl: parsedUrl.pathname, querystring: { ...parsedUrl.query } })
+        this._noticiationService.getNotifications(req.params.user_id, { pagenumber, pagesize }, null, null, { baseUrl: parsedUrl.pathname, querystring: { ...parsedUrl.query } })
             .then(result => res.status(result.status).send(result))
             .catch(error => res.status(error.status).send(error));
     }

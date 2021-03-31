@@ -28,8 +28,8 @@ const redisClient = redis.createClient({
     retry_strategy: () => 1000
 });
 
-redisClient.flushall();
-redisClient.flushdb();
+// redisClient.flushall();
+// redisClient.flushdb();
 
 const app = initilizer(redisClient);
 /**

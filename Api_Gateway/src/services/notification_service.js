@@ -20,12 +20,13 @@ class Notification {
         });
     }
 
-    saveNotification(user_id, message, title) {
+    saveNotification(user_id, message, title, to) {
         if (user_id && message && title) {
             const newNotification = {
                 message: message,
                 user_id: user_id,
-                title : title
+                title : title,
+                to : to
             };
             return Notification_Model.create(newNotification).then(result => {
                 //Publish a message for notification service here
@@ -39,19 +40,19 @@ class Notification {
             return Promise.reject({ success: false, error: new Error("incomplete message"), status: 400 });
         }
     }
-    getNotifications(paginationParams, sortParams, filterParams, urlDetail) {
-        return Promise.all([this._findDocument(paginationParams), this._getEstimatedDocsInDB()])
-            .then(result => {
-                let [foundData, dataCount] = result;
-                let metaData = this._getMetaDataForResult(paginationParams, dataCount, urlDetail);
-                return { success: true, data: foundData, status: 200, included: metaData };;
-            }).catch(error => {
-                return { success: false, error: error, status: 500 };
-            });
+    getNotifications(user_id, paginationParams, sortParams, filterParams, urlDetail) {
+        return Promise.all([this._findDocument(user_id, paginationParams), this._getEstimatedDocsInDB()])
+        .then(result => {
+            let [foundData, dataCount] = result;
+            let metaData = this._getMetaDataForResult(paginationParams, dataCount, urlDetail);
+            return { success: true, data: foundData, status: 200, included: metaData };;
+        }).catch(error => {
+            return { success: false, error: error, status: 500 };
+        });
     }
-    _findDocument(paginationParams) {
+    _findDocument(user_id , paginationParams) {
         let { pagenumber, pagesize } = this._pagingQueryGenerator(paginationParams);
-        return Notification_Model.find({}).skip((pagenumber - 1) * pagesize)
+        return Notification_Model.find({to : user_id}).skip((pagenumber - 1) * pagesize)
             .limit(pagesize).select({ createdAt: 0, updatedAt: 0 })
             .then(result => {
                 return result;
@@ -100,8 +101,7 @@ class Notification {
     _pagingQueryGenerator(paginationParams) {
         let { pagenumber, pagesize } = paginationParams;
         pagesize = !isNaN(parseInt(pagesize)) && parseInt(pagesize) > 0 ? parseInt(pagesize) : 5;
-        pagenumber = !isNaN(parseInt(pagenumber)) && parseInt(pagesize) > 0 ? parseInt(pagenumber) : 1;
-        
+        pagenumber = !isNaN(parseInt(pagenumber)) && parseInt(pagenumber) > 0 ? parseInt(pagenumber) : 1;
         return { pagenumber, pagesize };
     }
 }
